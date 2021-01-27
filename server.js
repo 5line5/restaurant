@@ -3,9 +3,7 @@ const hbs = require('hbs');
 const expressHbs = require('express-handlebars');
 const MongoClient = require('mongodb').MongoClient;
 const constants = require('./consts');
-const livereload = require('livereload');
 const bodyParser = require('body-parser');
-const connectLivereload = require('connect-livereload');
 const randomizer = require('./utils/randomizer');
 const pagesWorker = require('./utils/pageWorker');
 
