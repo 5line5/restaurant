@@ -1,0 +1,53 @@
+{{> separator }}
+{{> about }}
+{{> separator }}
+<div class="block" id="restaurants">
+    <div class="restaurants-block">
+        <h1 class="topic">Сеть ресторанов</h1>
+        {{#each restaurants}}
+            <a class="block-href" href="{{ this.href }}">
+                <div class="image-block block-hover restaurant-block-size">
+                    <img class="banner-image banner-image-size" src="{{ this.image }}">
+                    <div class="inner-text">
+                        <h1 class="restaurant-name restaurant-name-size">{{ this.place }}</h1>
+                        <p class="restaurant-description restaurant-description-size">{{ this.address }}</p>
+                    </div>
+                </div>
+            </a>
+        {{/each}}
+    </div>
+</div>
+{{> separator }}
+<div class="block" id="menu">
+    {{> carousel }}
+</div>
+
+<script>
+    window.onload = function () {
+        const body = document.getElementById('body');
+
+        const up_button = document.createElement('a');
+        up_button.setAttribute('href', '#');
+        const up = document.createElement('div');
+        up.setAttribute('class', 'up');
+        const content = document.createElement('div');
+        content.setAttribute('class', 'content');
+        const span_arrow = document.createElement('span');
+        span_arrow.setAttribute('class', 'arrow');
+        span_arrow.innerHTML = '↑';
+
+        content.appendChild(span_arrow);
+        up.appendChild(content);
+        up_button.appendChild(up);
+
+        window.addEventListener('scroll', function () {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop <= 100) {
+                up_button.remove()
+            }
+            if (scrollTop >= 300) {
+                body.appendChild(up_button);
+            }
+        })
+    }
+</script>

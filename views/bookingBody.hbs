@@ -1,0 +1,144 @@
+{{> separator }}
+<div class="booking">
+    <h1 class="topic">Бронирование</h1>
+    <div class="wrapper">
+        <div class="bookmarks">
+            <div class="bookmark clicked" id="do booking">Забронировать</div>
+            <div class="bookmark" id="undo booking">Снять бронь</div>
+        </div>
+        <form class="form" id="doBookingForm">
+            <div class="field">
+                <label for="dropdownRestaurants">Хочу столик в ресторане</label>
+                <select class="dropdownRestaurants" id="dropdownRestaurants">
+                    <option value=""></option>
+                    {{#each options}}
+                        <option>{{ this.place }}-{{ this.address }}</option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="calendar">Я приду</label>
+                <input class="calendar" id="calendar" type="date">
+            </div>
+
+            <div class="field">
+                <label for="phone">Мой номер</label>
+                <input class="phone" id="phone" type="tel" placeholder="например: 89021112233">
+            </div>
+
+            <div class="field">
+                <label for="doBookingButton"></label>
+                <input class="submit" id="doBookingButton" type="submit" value="Забронировать">
+            </div>
+        </form>
+
+        <form class="form invisible" id="undoBookingForm">
+            <div class="field">
+                <label for="code">Я хочу отменить бронь под номером</label>
+                <input class="code" id="code">
+            </div>
+            <div class="field">
+                <label for="undoBookingButton"></label>
+                <input class="submit" id="undoBookingButton" type="submit" value="Снять бронь">
+            </div>
+        </form>
+
+        <form class="form invisible" id="resultForm">
+            <div class="field" id="resultPlace">    </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const doBooking = document.getElementById('do booking');
+    const undoBooking = document.getElementById('undo booking');
+    const doBookingForm = document.getElementById('doBookingForm');
+    const undoBookingForm = document.getElementById('undoBookingForm');
+    const doBookingButton = document.getElementById('doBookingButton');
+    const undoBookingButton = document.getElementById('undoBookingButton');
+    const resultForm = document.getElementById('resultForm');
+    const resultPlace = document.getElementById('resultPlace');
+
+    const clicked = function (doFocus, undoFocus, formToShow, formToHide) {
+        if (doFocus.classList.contains('clicked'))
+            return;
+
+        doFocus.classList.add('clicked');
+        undoFocus.classList.remove('clicked');
+        formToShow.classList.remove('invisible');
+        formToHide.classList.add('invisible');
+        resultForm.classList.add('invisible');
+    };
+
+    doBooking.addEventListener('click', () => clicked(doBooking, undoBooking, doBookingForm, undoBookingForm));
+    undoBooking.addEventListener('click', () => clicked(undoBooking, doBooking, undoBookingForm, doBookingForm));
+    doBookingButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        let isValid = true;
+        const place = document.getElementById('dropdownRestaurants');
+        const date = document.getElementById('calendar');
+        const phone = document.getElementById('phone');
+
+        if (place.value === '') {
+            place.classList.add('invalid');
+            isValid = false;
+        }
+
+        if (date.value === '' || new Date(date.value) < new Date()) {
+            date.classList.add('invalid');
+            isValid = false;
+        }
+
+        if (phone.value.length !== 11) {
+            phone.classList.add('invalid');
+            isValid = false
+        }
+
+        if (isValid) {
+            place.classList.remove('invalid');
+            date.classList.remove('invalid');
+            phone.classList.remove('invalid');
+
+            fetch('/doBooking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({place: place.value, date: date.value, phone: phone.value})
+            }).then(resp => resp.json()).then(res => {
+                doBookingForm.classList.add('invisible');
+                resultForm.classList.remove('invisible');
+
+                if (res.status === 'ok')
+                    resultPlace.innerHTML = `Ваш код для бронирования: ${res.code}. Вам так же придет смс с этим же кодом.`;
+                else
+                    resultPlace.innerHTML = res.error;
+            })
+        }
+    });
+    undoBookingButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        let isValid = true;
+        const code = document.getElementById('code');
+
+
+        if (isValid) {
+            code.classList.remove('invalid');
+
+            fetch('/undoBooking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({code: code.value})
+            }).then(resp => resp.json()).then(res => {
+                undoBookingForm.classList.add('invisible');
+                resultForm.classList.remove('invisible');
+
+                if (res.status === 'ok')
+                    resultPlace.innerHTML = res.info;
+            })
+        }
+    });
+</script>

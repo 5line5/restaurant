@@ -1,0 +1,54 @@
+<div class="menu-block">
+    <h1 class="topic">Меню</h1>
+    <div class="slideshow-container" id="slideshowСontainer">
+        {{#each items}}
+            <a href="{{this.href}}">
+                <div class="mySlides fade">
+                    <img class="slide-image" src="{{ this.image }}">
+                    <div class="text">{{ this.name }}</div>
+                </div>
+            </a>
+        {{/each}}
+        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+        <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    </div>
+    <br>
+
+    <div style="text-align:center">
+        {{#each items}}
+            <span class="dot" onclick="currentSlide({{ this.number }})"></span>
+        {{/each}}
+    </div>
+</div>
+
+
+<script>
+    let slideIndex = 1;
+    const slides = document.getElementsByClassName('mySlides');
+    const dots = document.getElementsByClassName('dot');
+
+    showSlides(slideIndex);
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+        showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+        let i;
+
+        if (n > slides.length) {slideIndex = 1}
+        if (n < 1) {slideIndex = slides.length}
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = 'none';
+        }
+        for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(' active', '');
+        }
+        slides[slideIndex-1].style.display = 'block';
+        dots[slideIndex-1].className += ' active';
+    }
+</script>
